@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"log"
 	"math/rand"
 	"net/http"
 	"strconv"
@@ -14,15 +15,18 @@ import (
 var MAX_SIZE int
 
 func main() {
-	var port string
+	var port int
 
-	flag.StringVar(&port, "port", "8080", "port")
+	flag.IntVar(&port, "port", 8080, "port")
 	flag.IntVar(&MAX_SIZE, "size", 1000000000000000, "order of magnitude for factorization")
 	flag.Parse()
 
+	wsPort := ":" + strconv.Itoa(port)
+
 	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/", factorRandom)
-	http.ListenAndServe(":"+port, nil)
+	fmt.Println("Running server on port: ", port)
+	log.Fatal(http.ListenAndServe(wsPort, nil))
 }
 
 func factorRandom(w http.ResponseWriter, r *http.Request) {
