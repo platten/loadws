@@ -17,5 +17,9 @@ spec:
       containers:
       - name: loadws
         image: platten/loadws:latest
+        args:
+        env:
+        - name: SIZE
+          value: "1000000000000000"
         ports:
         - containerPort: 8080
