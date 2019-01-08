@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadws-deployment
+  labels:
+    app: loadws
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: loadws
+  template:
+    metadata:
+      labels:
+        app: loadws
+    spec:
+      containers:
+      - name: loadws
+        image: platten/loadws:latest
+        ports:
+        - containerPort: 8080

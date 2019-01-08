@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"math/rand"
 	"net/http"
@@ -9,20 +10,31 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
+// Globals
+var MAX_SIZE int
+
 func main() {
+	var port string
+
+	flag.StringVar(&port, "port", "8080", "port")
+	flag.IntVar(&MAX_SIZE, "size", 1000000000000000, "order of magnitude for factorization")
+	flag.Parse()
+
 	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/", factorRandom)
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe(":"+port, nil)
 }
 
 func factorRandom(w http.ResponseWriter, r *http.Request) {
-	nr := int64(rand.Intn(100000000000000) + 100000000000000)
-	nr_str := strconv.FormatInt(nr, 10)
+	nr := int64(rand.Intn(MAX_SIZE) + MAX_SIZE)
+	nrStr := strconv.FormatInt(nr, 10)
+
+	// Taken from RosettaCode: https://rosettacode.org/wiki/Factors_of_an_integer#Go
 	if nr < 1 {
-		fmt.Fprintf(w, "\nFactors of", nr_str, "not computed")
+		fmt.Fprintf(w, "\nFactors of %s not computed", nrStr)
 		return
 	}
-	//fmt.Fprintf(w, "\nFactors of %d: ", nr_str)
+	//fmt.Fprintf(w, "\nFactors of %d: ", nrStr)
 	fs := make([]int64, 1)
 	fs[0] = 1
 	apf := func(p int64, e int) {
@@ -50,5 +62,5 @@ func factorRandom(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	fmt.Fprintf(w, "Number of factors for %s is = %d", nr_str, len(fs))
+	fmt.Fprintf(w, "Number of factors for %s is = %d", nrStr, len(fs))
 }
